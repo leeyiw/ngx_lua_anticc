@@ -19,7 +19,7 @@ _M.challenge_code_tmpl = [[
     </script>
 </head>
 <body>
-    <img onclick="reload()" id="captcha-img" />
+    <img onclick="reload()" id="captcha-img" style="cursor:pointer" />
     <form action="%s" method="GET">
         Please input the verification code to continue:<br />
         <input type="text" name="code" />

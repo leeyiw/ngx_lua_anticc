@@ -32,6 +32,13 @@ if not count then
     return
 end
 
+-- identify if request is page or resource
+if ngx.re.find(ngx.var.uri, "\\.(bmp|css|gif|ico|jpe?g|js|png)$", "ioj") then
+    ngx.ctx.nla_rtype = "resource"
+else
+    ngx.ctx.nla_rtype = "page"
+end
+
 -- if QPS is exceed 5, start cookie challenge
 if count > 5 then
     if cookies[COOKIE_NAME] ~= user_id then
@@ -42,7 +49,7 @@ end
 
 -- if cookie challenge is passed and QPS is exceed 10, start captcha challenge
 if count > 10 then
-    if not captcha_pass_list:get(captcha_user_id) then
+    if ngx.ctx.nla_rtype ~= "resource" and (not captcha_pass_list:get(captcha_user_id)) then
         captcha.challenge(captcha_user_id)
         return
     end
