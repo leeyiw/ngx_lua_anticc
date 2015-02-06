@@ -30,8 +30,7 @@ end
 function _M.challenge(cookie_name, cookie_value)
     -- if static resource is requested, use Set-Cookie and 302 to challenge
     if ngx.re.find(ngx.var.uri, "\\.(bmp|css|gif|jpe?g|js|png)$", "ioj") then
-        cookie_str = string.format('%s=%s', cookie_name, cookie_value)
-        ngx.header['Set-Cookie'] = {cookie_str}
+        ngx.header["Set-Cookie"] = cookie_name .. "=" .. cookie_value
         ngx.redirect(ngx.var.request_uri)
         return
     end
