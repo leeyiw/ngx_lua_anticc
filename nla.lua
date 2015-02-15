@@ -2,6 +2,7 @@
 local config = ngx.shared.nla_config
 local req_count = ngx.shared.nla_req_count;
 local captcha_pass_list = ngx.shared.nla_captcha_pass_list
+local whitelist = ngx.shared.nla_whitelist
 
 -- config options
 local COOKIE_NAME = config:get("cookie_name")
@@ -26,6 +27,12 @@ if ngx.var.uri == CAPTCHA_VALIDATE_PAGE then
     return ngx.redirect(cookies[CAPTCHA_COOKIE_NAME] or "/")
 end
 
+-- if client IP is in whitelist, pass
+in_whitelist = whitelist:get(ngx.var.remote_addr)
+if in_whitelist then
+    return
+end
+
 local count, err = req_count:incr(user_id, 1)
 if not count then
     req_count:add(user_id, 1, 1)
@@ -33,7 +40,7 @@ if not count then
 end
 
 -- identify if request is page or resource
-if ngx.re.find(ngx.var.uri, "\\.(bmp|css|gif|ico|jpe?g|js|png)$", "ioj") then
+if ngx.re.find(ngx.var.uri, "\\.(bmp|css|gif|ico|jpe?g|js|png|swf)$", "ioj") then
     ngx.ctx.nla_rtype = "resource"
 else
     ngx.ctx.nla_rtype = "page"
